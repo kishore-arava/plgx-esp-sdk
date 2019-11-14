@@ -81,6 +81,8 @@ def read_csv(file_path, vt):
                             bad_hashes += 1
                         score = str(result['positives']) + "/" + str(result['total'])
                         df.loc[df[column] == result['resource'], 'vt_score'] = score
+                    else:
+                        df.loc[df[column] == result['resource'], 'vt_score'] = 0
 
         time.sleep(sleep_time)
     df.to_csv(file_vt_score_output_path, encoding='utf-8', index=False)
