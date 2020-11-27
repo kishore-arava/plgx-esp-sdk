@@ -25,6 +25,15 @@ Usage
     response = polylogyx_api.get_nodes()
     print(json.dumps(response, sort_keys=False, indent=4))
 
+                    OR
+
+    from __future__ import print_function
+    import json
+    from polylogyx_apis_v1 import PolylogyxApi
+
+    polylogyx_api = PolylogyxApi(domain='<IP/DOMAIN>', username='<USERNAME>',password='<PASSWORD>')
+    response = polylogyx_api.get_nodes()
+    print(json.dumps(response, sort_keys=False, indent=4))
 
 
 Documentation

@@ -6,7 +6,7 @@ from codecs import open
 
 from setuptools import setup
 
-import polylogyx_apis
+from scripts.v0 import polylogyx_apis
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -35,8 +35,8 @@ setup(name='polylogyx-api',
                    'License :: OSI Approved :: MIT License',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.7',],
-      packages=['polylogyx_apis'],
+      packages=['polylogyx_apis', 'polylogyx_apis_v1'],
       package_data={'': ['LICENSE', 'NOTICE']},
-      package_dir={'polylogyx_apis': 'polylogyx_apis'},
+      package_dir={'polylogyx_apis': 'scripts/v0/polylogyx_apis', 'polylogyx_apis_v1': 'scripts/v1/polylogyx_apis'},
       include_package_data=True,
-      install_requires=["requests >= 2.2.1","websocket_client>=0.13.0","pandas>=0.22.0"])
+      install_requires=["requests >= 2.2.1","websocket_client>=0.13.0","pandas>=0.22.0","virustotal-api==1.1.11"])
