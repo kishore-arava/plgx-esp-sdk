@@ -39,4 +39,4 @@ setup(name='polylogyx-api',
       package_data={'': ['LICENSE', 'NOTICE']},
       package_dir={'polylogyx_apis': 'scripts/v0/polylogyx_apis', 'polylogyx_apis_v1': 'scripts/v1/polylogyx_apis'},
       include_package_data=True,
-      install_requires=["requests >= 2.2.1","websocket_client>=0.13.0","pandas>=0.22.0","virustotal-api==1.1.11"])
+      install_requires=["requests >= 2.2.1", "websocket_client>=0.13.0", "pandas>=0.22.0", "virustotal-api==1.1.11", "paramiko"])

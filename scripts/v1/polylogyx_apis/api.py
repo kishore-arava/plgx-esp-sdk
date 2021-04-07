@@ -50,15 +50,40 @@ class PolylogyxApi:
         except requests.RequestException as e:
             return dict(error=str(e))
 
-    def get_nodes(self):
+    def get_nodes(self, platform=None, status=None, start=None, limit=None):
         """ This API allows you to get all the nodes registered.
             :return: JSON response that contains list of nodes.
         """
 
         url = self.base + "/hosts"
         headers = {'x-access-token': self.AUTH_TOKEN}
+        body = {}
+        if platform:
+            body['platform'] = platform
+        if status:
+            body['status'] = status
+        if start is not None:
+            body['start'] = start
+        if limit:
+            body['limit'] = limit
         try:
             response = requests.post(
+                url, headers=headers, json=body,
+                verify=False, timeout=TIMEOUT_SECS)
+        except requests.RequestException as e:
+            return dict(error=str(e))
+
+        return _return_response_and_status_code(response)
+
+    def get_nodes_distribution_count(self):
+        """ This API allows you to get count of nodes registered for platform, status pair.
+            :return: JSON response that contains list of nodes.
+        """
+
+        url = self.base + "/hosts/count"
+        headers = {'x-access-token': self.AUTH_TOKEN}
+        try:
+            response = requests.get(
                 url, headers=headers,
                 verify=False, timeout=TIMEOUT_SECS)
         except requests.RequestException as e:
