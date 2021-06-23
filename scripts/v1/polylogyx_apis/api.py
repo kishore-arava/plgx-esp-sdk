@@ -30,13 +30,17 @@ class PolylogyxApi:
         self.version = 0
         self.max_retries = 5
         self.domain = domain
-        self.base = "https://" + domain + ":5000/services/api/v1"
+        self.base = "https://" + domain + "/esp-ui/services/api/v1"
 
         if username is None or password is None:
             raise ApiError("You must supply a username and password.")
         self.fetch_token()
 
     def fetch_token(self):
+        """
+        Logs into PolyLogyx ESP platform and fetches auth token
+        :return: JSON Response of Auth token
+        """
         url = self.base + '/login'
         payload = {'username': self.username, 'password': self.password}
         try:
@@ -75,9 +79,60 @@ class PolylogyxApi:
 
         return _return_response_and_status_code(response)
 
+    def get_nodes_distribution(self):
+        """ This API allows you to get distributed count on platform, status pair.
+            :return: JSON response that contains list of node's platform distribution.
+        """
+        url = self.base + "/hosts/count"
+        headers = {'x-access-token': self.AUTH_TOKEN}
+        try:
+            response = requests.get(
+                url, headers=headers,
+                verify=False, timeout=TIMEOUT_SECS)
+        except requests.RequestException as e:
+            return dict(error=str(e))
+
+        return _return_response_and_status_code(response)
+
+    def get_all_packs(self):
+        """ This API allows you to get all packs
+            :return: JSON response that contains an array of all packs.
+        """
+
+        url = self.base + "/packs"
+        headers = {'x-access-token': self.AUTH_TOKEN}
+        try:
+            response = requests.post(
+                url, headers=headers, data={},
+                verify=False, timeout=TIMEOUT_SECS)
+        except requests.RequestException as e:
+            return dict(error=str(e))
+
+        return _return_response_and_status_code(response)
+
+    def get_node(self, node_id=None, host_identifier=None):
+        """ This API allows you to get a host details for the given id
+            :return: JSON response that contains host details.
+        """
+        if node_id:
+            url = self.base + "/hosts/{}".format(node_id)
+        elif host_identifier:
+            url = self.base + "/hosts/{}".format(host_identifier)
+        else:
+            url = self.base + "/hosts"
+        headers = {'x-access-token': self.AUTH_TOKEN}
+        try:
+            response = requests.get(
+                url, headers=headers,
+                verify=False, timeout=TIMEOUT_SECS)
+        except requests.RequestException as e:
+            return dict(error=str(e))
+
+        return _return_response_and_status_code(response)
+
     def get_nodes_distribution_count(self):
         """ This API allows you to get count of nodes registered for platform, status pair.
-            :return: JSON response that contains list of nodes.
+            :return: JSON response that contains list of platform, status and count combination.
         """
 
         url = self.base + "/hosts/count"
@@ -92,8 +147,8 @@ class PolylogyxApi:
         return _return_response_and_status_code(response)
 
     def get_alerts(self, data):
-        """ This API allows you to get all the nodes registered.
-            :return: JSON response that contains list of nodes.
+        """ This API allows you to get the alerts for the filters requested.
+            :return: JSON response that contains list of Alerts.
         """
 
         url = self.base + "/alerts"
@@ -134,7 +189,7 @@ class PolylogyxApi:
     def get_distributed_query_results(self, query_id):
 
         """ Retrieve the query results based on the query_id query.
-               This API uses websocket connection for getting data.
+               This API uses web socket connection for getting data.
                :param query_id: Query id for which the results to be fetched
                :return: Stream data of a query executed on nodes.
         """
@@ -145,8 +200,32 @@ class PolylogyxApi:
         result = conn.recv()
         return conn
 
-    def get_query_data(self, query_name=None, host_identifier=None, start=1, limit=100):
+    def get_query_count(self, host_identifier=None):
+        """
+        Returns query results count of a host
+        :param host_identifier: Host identifier of the host to fetch query counts
+        :return: JSON array of query names and counts
+        """
+        payload = {'host_identifier': host_identifier}
+        headers = {'x-access-token': self.AUTH_TOKEN, 'content-type': 'application/json'}
+        url = self.base + '/hosts/recent_activity/count'
+        try:
+            response = requests.post(
+                url, json=payload, headers=headers,
+                verify=False, timeout=TIMEOUT_SECS)
+        except requests.RequestException as e:
+            return dict(error=str(e))
+        return _return_response_and_status_code(response)
 
+    def get_query_data(self, query_name=None, host_identifier=None, start=1, limit=100):
+        """
+        Fetches the query results i.e recent activity of a node and query name pair with filters applied.
+        :param query_name: query_name to filter recent_activity
+        :param host_identifier: host identifier of the node to filter recent_activity
+        :param start: Pagination's start
+        :param limit: Pagination's end
+        :return: Returns list of query results for a node and query name pair.
+        """
         payload = {'host_identifier': host_identifier, 'query_name': query_name, 'start': start, 'limit': limit}
         headers = {'x-access-token': self.AUTH_TOKEN, 'content-type': 'application/json'}
         url = self.base + '/hosts/recent_activity'
@@ -159,7 +238,11 @@ class PolylogyxApi:
         return _return_response_and_status_code(response)
 
     def search_query_data(self, search_conditions):
-
+        """
+        A conditions based search on recent activity.
+        :param search_conditions: JSON array of conditions to filter recent activity.
+        :return: JSON array of filtered recent_activity.
+        """
         payload = search_conditions
         headers = {'x-access-token': self.AUTH_TOKEN, 'content-type': 'application/json'}
         url = self.base + "/search"
@@ -221,8 +304,8 @@ class PolylogyxApi:
             return dict(error=str(e))
 
     def take_action(self, data):
-        """ This API allows you to get all the nodes registered.
-            :return: JSON response that contains list of nodes.
+        """ This API allows you to take an action against a node through response action path.
+            :return: JSON response of status and message about action took.
         """
 
         url = self.base + "/response/add"
@@ -237,8 +320,8 @@ class PolylogyxApi:
         return _return_response_and_status_code(response)
 
     def get_action_status(self, command_id):
-        """ This API allows you to get all the nodes registered.
-            :return: JSON response that contains list of nodes.
+        """ This API allows you to get status of an endpoint for response action path.
+            :return: JSON response that contains status of the endpoint.
         """
 
         url = self.base + "/response/" + command_id

@@ -23,7 +23,7 @@ with open('README.rst', 'r', 'utf-8') as f:
 setup(name='polylogyx-api',
       version=polylogyx_apis.__version__,
       description='PolyLogyx REST API',
-      long_description=readme ,
+      long_description=readme,
       url='https://github.com/polylogyx/polylogyx-api',
       author='polylogyx',
       author_email='info@polylogyx.com',
@@ -39,4 +39,5 @@ setup(name='polylogyx-api',
       package_data={'': ['LICENSE', 'NOTICE']},
       package_dir={'polylogyx_apis': 'scripts/v0/polylogyx_apis', 'polylogyx_apis_v1': 'scripts/v1/polylogyx_apis'},
       include_package_data=True,
-      install_requires=["requests >= 2.2.1", "websocket_client>=0.13.0", "pandas>=0.22.0", "virustotal-api==1.1.11", "paramiko"])
+      install_requires=["requests >= 2.2.1", "websocket_client>=0.13.0", "pandas>=0.22.0", "virustotal-api==1.1.11",
+                        "paramiko", "xlsxwriter"])
